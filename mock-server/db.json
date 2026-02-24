@@ -1,0 +1,20 @@
+{
+  "parcels": [
+    {
+      "id": "PKG-001",
+      "recipient": "Jean Dupont",
+      "address": "123 Rue de la Livraison, Paris",
+      "status": "PENDING",
+      "lat": 48.8566,
+      "lng": 2.3522
+    },
+    {
+      "id": "PKG-002",
+      "recipient": "Marie Curie",
+      "address": "456 Avenue Scientifique, Lyon",
+      "status": "DELIVERED",
+      "lat": 45.764,
+      "lng": 4.8357
+    }
+  ]
+}

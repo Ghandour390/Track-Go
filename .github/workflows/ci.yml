@@ -2,7 +2,7 @@ name: CI Track&Go
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: ["**"]
 
 jobs:
   build:

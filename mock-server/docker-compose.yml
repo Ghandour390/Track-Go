@@ -1,0 +1,9 @@
+services:
+  mock-api:
+    build: .
+    container_name: trackandgo-mock-api
+    ports:
+      - "3009:3000"
+    volumes:
+      - ./db.json:/app/db.json
+    restart: unless-stopped

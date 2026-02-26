@@ -101,7 +101,7 @@ const MOCK_PARCELS: Parcel[] = [
   },
 ];
 
-const FILTERS: Array<{ key: 'Tous' | ParcelStatus; label: string }> = [
+const FILTERS: { key: 'Tous' | ParcelStatus; label: string }[] = [
   { key: 'Tous', label: 'Tous' },
   { key: 'À livrer', label: 'À livrer' },
   { key: 'Livré', label: 'Livré' },

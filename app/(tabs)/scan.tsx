@@ -1,13 +1,9 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ScanScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
 
   return (
     <View style={styles.container}>
@@ -36,7 +32,7 @@ export default function ScanScreen() {
           </Pressable>
 
           <Text style={styles.hint}>
-            L'accès à la caméra est requis pour scanner
+            L&apos;accès à la caméra est requis pour scanner
           </Text>
         </View>
       </SafeAreaView>

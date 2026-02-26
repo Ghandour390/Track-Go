@@ -35,7 +35,7 @@ export default function TabLayout() {
           borderRadius: 24,
 
           // Glass style
-          backgroundColor: theme.card ?? GLASS_BG,
+          backgroundColor: GLASS_BG,
           borderTopWidth: 0,
           borderWidth: 1,
           borderColor: GLASS_BORDER,

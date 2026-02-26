@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function LoginScreen() {
+export default function PerformanceScreen() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Connexion</Text>
+            <Text style={styles.title}>Stats de performance, screen</Text>
         </View>
     );
 }
@@ -14,9 +14,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#0B1220',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: 'white',
     },
 });

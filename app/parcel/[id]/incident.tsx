@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function LoginScreen() {
+export default function IncidentScreen() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Connexion</Text>
+            <Text style={styles.title}>Signaler un incident</Text>
         </View>
     );
 }

@@ -1,20 +1,124 @@
 {
-  "parcels": [
+  "livreurs": [
     {
-      "id": "PKG-001",
-      "recipient": "Jean Dupont",
-      "address": "123 Rue de la Livraison, Paris",
-      "status": "PENDING",
-      "lat": 48.8566,
-      "lng": 2.3522
+      "id": "LIV-001",
+      "nom": "Martin",
+      "prenom": "Thomas",
+      "email": "thomas.martin@trackgo.fr",
+      "tokenAuth": "token-abc123"
     },
     {
-      "id": "PKG-002",
-      "recipient": "Marie Curie",
-      "address": "456 Avenue Scientifique, Lyon",
-      "status": "DELIVERED",
-      "lat": 45.764,
-      "lng": 4.8357
+      "id": "LIV-002",
+      "nom": "Bernard",
+      "prenom": "Sophie",
+      "email": "sophie.bernard@trackgo.fr",
+      "tokenAuth": "token-def456"
+    }
+  ],
+  "tournees": [
+    {
+      "id": "TRN-001",
+      "livreurId": "LIV-001",
+      "date": "2026-03-03T08:00:00.000Z",
+      "statut": "EN_COURS",
+      "distanceTotale": 45.2
+    },
+    {
+      "id": "TRN-002",
+      "livreurId": "LIV-002",
+      "date": "2026-03-03T09:00:00.000Z",
+      "statut": "PLANIFIEE",
+      "distanceTotale": 32.7
+    }
+  ],
+  "destinataires": [
+    {
+      "id": "DST-001",
+      "nomComplet": "Jean Dupont",
+      "telephone": "+33612345678"
+    },
+    {
+      "id": "DST-002",
+      "nomComplet": "Marie Curie",
+      "telephone": "+33687654321"
+    },
+    {
+      "id": "DST-003",
+      "nomComplet": "Pierre Leclerc",
+      "telephone": "+33698765432"
+    }
+  ],
+  "localisations": [
+    {
+      "id": "LOC-001",
+      "adresseComplete": "123 Rue de la Livraison, Paris",
+      "latitude": 48.8566,
+      "longitude": 2.3522,
+      "codePostal": "75001"
+    },
+    {
+      "id": "LOC-002",
+      "adresseComplete": "456 Avenue Scientifique, Lyon",
+      "latitude": 45.764,
+      "longitude": 4.8357,
+      "codePostal": "69002"
+    },
+    {
+      "id": "LOC-003",
+      "adresseComplete": "789 Boulevard du Commerce, Marseille",
+      "latitude": 43.2965,
+      "longitude": 5.3698,
+      "codePostal": "13001"
+    }
+  ],
+  "colis": [
+    {
+      "id": "COL-001",
+      "tourneeId": "TRN-001",
+      "destinataireId": "DST-001",
+      "localisationId": "LOC-001",
+      "codeBarre": "3701234567890",
+      "statut": "EN_COURS_ACHEMINEMENT",
+      "instructionsLivreur": "Laisser chez le gardien si absent"
+    },
+    {
+      "id": "COL-002",
+      "tourneeId": "TRN-001",
+      "destinataireId": "DST-002",
+      "localisationId": "LOC-002",
+      "codeBarre": "3700987654321",
+      "statut": "LIVRE",
+      "instructionsLivreur": null
+    },
+    {
+      "id": "COL-003",
+      "tourneeId": "TRN-002",
+      "destinataireId": "DST-003",
+      "localisationId": "LOC-003",
+      "codeBarre": "3701122334455",
+      "statut": "A_LIVRER",
+      "instructionsLivreur": "Appeler avant livraison"
+    }
+  ],
+  "preuves": [
+    {
+      "id": "PRV-001",
+      "colisId": "COL-002",
+      "horodatage": "2026-03-03T10:32:00.000Z",
+      "latValidation": 45.764,
+      "lngValidation": 4.8357,
+      "methodeVerificationId": "SIGNATURE",
+      "signatureClientUrl": "https://storage.trackgo.fr/signatures/PRV-001.png"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "INC-001",
+      "colisId": "COL-001",
+      "type": "CLIENT_ABSENT",
+      "commentaire": "Personne au domicile, avis de passage laissé",
+      "photoPreuveUrl": null,
+      "horodatage": "2026-03-03T11:15:00.000Z"
     }
   ]
 }

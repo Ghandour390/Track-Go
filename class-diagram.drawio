@@ -1,0 +1,73 @@
+<mxfile host="65bd71144e">
+    <diagram id="classDiagram" name="Class Diagram">
+        <mxGraphModel dx="774" dy="462" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="livreur" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;background: rgb(230, 230, 230); text-align: center; border-bottom: 1px solid rgb(0, 0, 0); padding: 4px 0px;&quot;&gt;&lt;b&gt;Livreur&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;id: String&lt;br&gt;nom: String&lt;br&gt;prenom : string&lt;br&gt;email: String&lt;br&gt;tokenAuth: String&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="40" width="260" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="tournee" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;Tournee&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;id: String&lt;br&gt;date: Date&lt;br&gt;statut: StatutTournee&lt;br&gt;distanceTotale: Float&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="40" width="300" height="240" as="geometry"/>
+                </mxCell>
+                <mxCell id="colis" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;Colis&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;id: String&lt;br&gt;codeBarre: String&lt;br&gt;statut: StatutColis&lt;br&gt;instructionsLivreur: String&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="740" y="40" width="340" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="destinataire" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;Destinataire&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;id: String&lt;br&gt;nomComplet: String&lt;br&gt;telephone: String&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="340" width="280" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="localisation" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;Localisation&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;adresseComplete: String&lt;br&gt;latitude: Float&lt;br&gt;longitude: Float&lt;br&gt;codePostal: String&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="340" width="300" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="preuve" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;PreuveLivraison&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;id: String&lt;br&gt;horodatage: Date&lt;br&gt;latValidation: Float&lt;br&gt;lngValidation: Float&lt;br&gt;methodeVerificationID: String&lt;br&gt;signatureClientUrl: String&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="740" y="340" width="340" height="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="incident" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;Incident&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;id: String&lt;br&gt;type: TypeIncident&lt;br&gt;commentaire: String&lt;br&gt;photoPreuveUrl: String&lt;br&gt;horodatage: Date&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="1120" y="340" width="300" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="statutColis" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;StatutColis&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;A_LIVRER&lt;br&gt;EN_COURS_ACHEMINEMENT&lt;br&gt;LIVRE&lt;br&gt;ECHEC_LIVRAISON&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="600" width="300" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="typeIncident" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;TypeIncident&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;CLIENT_ABSENT&lt;br&gt;COLIS_ENDOMMAGE&lt;br&gt;ADRESSE_INCORRECTE&lt;br&gt;AUTRE&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="600" width="300" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="statutTournee" value="&lt;table style=&quot;width:100%;border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#E6E6E6;text-align:center;border-bottom:1px solid #000;padding:4px 0;&quot;&gt;&lt;b&gt;StatutTournee&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;padding:6px;text-align:left;&quot;&gt;PLANIFIEE&lt;br&gt;EN_COURS&lt;br&gt;TERMINEE&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;shadow=0;fontColor=#000000;fontFamily=Arial;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="740" y="600" width="260" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_livreur_tournee" value="1..*" style="endArrow=none;startArrow=none;html=1;" parent="1" source="livreur" target="tournee" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_tournee_colis" value="1..*" style="endArrow=diamond;endFill=1;html=1;" parent="1" source="tournee" target="colis" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_colis_dest" value="destine a" style="endArrow=open;html=1;strokeColor=#6B7280;fontColor=#374151;" parent="1" source="colis" target="destinataire" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="870" y="300"/>
+                            <mxPoint x="200" y="300"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="rel_colis_loc" value="livre a" style="endArrow=open;html=1;strokeColor=#6B7280;fontColor=#374151;" parent="1" source="colis" target="localisation" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="830" y="310"/>
+                            <mxPoint x="540" y="310"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="rel_colis_preuve" value="0..1" style="endArrow=none;html=1;" parent="1" source="colis" target="preuve" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_colis_incident" value="0..*" style="endArrow=none;html=1;" parent="1" source="colis" target="incident" edge="1">
+                    <mxGeometry x="-0.3331" y="4" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1270" y="170"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

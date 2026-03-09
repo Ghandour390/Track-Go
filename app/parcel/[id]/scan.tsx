@@ -1,146 +1,50 @@
-import React, { useMemo, useState } from 'react';
+import * as Location from "expo-location";
+import { router, useLocalSearchParams } from "expo-router";
+import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
+  ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
   StatusBar,
-  Alert,
-} from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-type ParcelStatus = 'À livrer' | 'Livré' | 'Incident';
-
-type Proof = {
-  gps?: { lat: number; lng: number; accuracyM: number };
-  photoUrl?: string;
-  timestamp?: string; // ISO
-};
-
-type Parcel = {
-  id: string;
-  trackingCode: string;
-  recipientName: string;
-  phone?: string;
-  addressLine: string;
-  city: string;
-  eta: string;
-  distanceKm: number;
-  status: ParcelStatus;
-  priority?: 'Normal' | 'Express';
-  note?: string;
-  photoUrl?: string;
-  proof?: Proof;
-};
-
-// ⚠️ Mock data: idéalement tu le mets dans un fichier séparé (ex: /mocks/parcels.ts)
-// Ici je le mets dans la page pour que tu puisses copier-coller facilement.
-const MOCK_PARCELS: Parcel[] = [
-  {
-    id: 'PK-10231',
-    trackingCode: 'TG-AX9-22019',
-    recipientName: 'Sara El Amrani',
-    phone: '+212 6 12 34 56 78',
-    addressLine: '12 Rue Al Massira, Appt 3',
-    city: 'Casablanca',
-    eta: '09:45',
-    distanceKm: 1.2,
-    status: 'À livrer',
-    priority: 'Express',
-    note: 'Appeler avant d’arriver.',
-    photoUrl:
-      'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&w=900&q=60',
-  },
-  {
-    id: 'PK-10232',
-    trackingCode: 'TG-QM2-11001',
-    recipientName: 'Youssef Benali',
-    addressLine: 'Boulevard Zerktouni, Immeuble 18',
-    city: 'Casablanca',
-    eta: '10:20',
-    distanceKm: 3.8,
-    status: 'À livrer',
-    priority: 'Normal',
-    photoUrl:
-      'https://images.unsplash.com/photo-1520975958225-43e6f49f49f5?auto=format&fit=crop&w=900&q=60',
-  },
-  {
-    id: 'PK-10233',
-    trackingCode: 'TG-LP4-88073',
-    recipientName: 'Khadija Aït Lahcen',
-    addressLine: 'Hay Hassani, Rue 7',
-    city: 'Casablanca',
-    eta: '11:05',
-    distanceKm: 6.1,
-    status: 'Incident',
-    priority: 'Normal',
-    note: 'Destinataire absent (à reprogrammer).',
-    photoUrl:
-      'https://images.unsplash.com/photo-1583225214464-9296029427aa?auto=format&fit=crop&w=900&q=60',
-    proof: {
-      gps: { lat: 33.5731, lng: -7.5898, accuracyM: 18 },
-      photoUrl:
-        'https://images.unsplash.com/photo-1558008258-3256797b43f3?auto=format&fit=crop&w=900&q=60',
-      timestamp: '2026-02-24T11:12:00.000Z',
-    },
-  },
-  {
-    id: 'PK-10234',
-    trackingCode: 'TG-ZZ1-90012',
-    recipientName: 'Omar Ziani',
-    addressLine: 'Quartier Gauthier, Rue Ibnou Rochd',
-    city: 'Casablanca',
-    eta: '12:30',
-    distanceKm: 8.9,
-    status: 'Livré',
-    priority: 'Express',
-    note: 'Remis à la réception.',
-    photoUrl:
-      'https://images.unsplash.com/photo-1564419320461-6870880221ad?auto=format&fit=crop&w=900&q=60',
-    proof: {
-      gps: { lat: 33.5902, lng: -7.6039, accuracyM: 12 },
-      photoUrl:
-        'https://images.unsplash.com/photo-1523419409543-a5e549c1faa9?auto=format&fit=crop&w=900&q=60',
-      timestamp: '2026-02-24T12:42:10.000Z',
-    },
-  },
-  {
-    id: 'PK-10235',
-    trackingCode: 'TG-HH7-32009',
-    recipientName: 'Imane Toumi',
-    addressLine: 'Maarif, Rue Socrate',
-    city: 'Casablanca',
-    eta: '14:10',
-    distanceKm: 11.3,
-    status: 'À livrer',
-    priority: 'Normal',
-    photoUrl:
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=60',
-  },
-];
+import { useParcels } from "@/hooks/use-parcels";
+import type { ParcelStatus } from "@/types/parcel";
 
 function formatDateTime(iso?: string) {
-  if (!iso) return '—';
+  if (!iso) return "—";
   const d = new Date(iso);
   // affichage simple (local)
-  return `${d.toLocaleDateString()} • ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  return `${d.toLocaleDateString()} • ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
 function clampText(s: string, max = 70) {
   if (s.length <= max) return s;
-  return s.slice(0, max - 1).trimEnd() + '…';
+  return s.slice(0, max - 1).trimEnd() + "…";
 }
 
 export default function ParcelDetailsScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
-  const id = typeof params.id === 'string' ? params.id : undefined;
+  const id = typeof params.id === "string" ? params.id : undefined;
 
-  const parcel = useMemo(() => MOCK_PARCELS.find((p) => p.id === id), [id]);
+  const { getById, isLoading, setStatusWithProof } = useParcels();
+  const parcel = id ? getById(id) : undefined;
 
-  // Mock: état local si tu veux simuler la preuve ou un changement de statut
-  const [localStatus, setLocalStatus] = useState<ParcelStatus | undefined>(parcel?.status);
+  if (isLoading) {
+    return (
+      <View style={styles.screen}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.errorWrap}>
+          <ActivityIndicator size="large" color="#4F8CFF" />
+        </View>
+      </View>
+    );
+  }
 
   if (!id || !parcel) {
     return (
@@ -149,9 +53,16 @@ export default function ParcelDetailsScreen() {
         <View style={styles.errorWrap}>
           <Text style={styles.errorTitle}>Colis introuvable</Text>
           <Text style={styles.errorText}>
-            Impossible de charger les détails. Vérifie l’ID dans l’URL ou reviens à la tournée.
+            Impossible de charger les détails. Vérifie l’ID dans l’URL ou
+            reviens à la tournée.
           </Text>
-          <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.btnPrimary, pressed && styles.btnPressed]}>
+          <Pressable
+            onPress={() => router.back()}
+            style={({ pressed }) => [
+              styles.btnPrimary,
+              pressed && styles.btnPressed,
+            ]}
+          >
             <Text style={styles.btnPrimaryText}>Retour</Text>
           </Pressable>
         </View>
@@ -159,11 +70,10 @@ export default function ParcelDetailsScreen() {
     );
   }
 
-  const status: ParcelStatus = localStatus ?? parcel.status;
+  const status: ParcelStatus = parcel.status;
 
   const onScan = () => {
-    // Route recommandée : /parcels/:id/scan
-    router.push(`/parcel/${parcel.id}/scan`);
+    router.push("/parcel/scan");
   };
 
   const onIncident = () => {
@@ -171,30 +81,70 @@ export default function ParcelDetailsScreen() {
     router.push(`/parcel/${parcel.id}/incident`);
   };
 
-  const onSimulateProof = () => {
-    // Pour démo UI : simuler une preuve + statut livré
+  const onCaptureProof = () => {
     Alert.alert(
-      'Simulation',
-      'Ajouter une preuve de livraison et passer le statut à "Livré" ?',
+      "Validation livraison",
+      "Capturer la position GPS et marquer ce colis comme livré ?",
       [
-        { text: 'Annuler', style: 'cancel' },
+        { text: "Annuler", style: "cancel" },
         {
-          text: 'Oui',
-          onPress: () => {
-            setLocalStatus('Livré');
+          text: "Valider",
+          onPress: async () => {
+            const permission =
+              await Location.requestForegroundPermissionsAsync();
+            if (permission.status !== "granted") {
+              Alert.alert(
+                "Permission refusée",
+                "Active la localisation pour certifier la livraison.",
+              );
+              return;
+            }
+
+            try {
+              const currentLocation = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
+              });
+
+              await setStatusWithProof(parcel.id, "Livré", {
+                gps: {
+                  lat: currentLocation.coords.latitude,
+                  lng: currentLocation.coords.longitude,
+                  accuracyM: Math.max(
+                    1,
+                    Math.round(currentLocation.coords.accuracy ?? 0),
+                  ),
+                },
+                timestamp: new Date().toISOString(),
+                photoUrl: parcel.proof?.photoUrl,
+              });
+            } catch {
+              Alert.alert(
+                "GPS indisponible",
+                "Impossible de capturer la position actuelle.",
+              );
+            }
           },
         },
-      ]
+      ],
     );
   };
 
   return (
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Top bar */}
         <View style={styles.topBar}>
-          <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backBtn, pressed && styles.btnPressed]}>
+          <Pressable
+            onPress={() => router.back()}
+            style={({ pressed }) => [
+              styles.backBtn,
+              pressed && styles.btnPressed,
+            ]}
+          >
             <Text style={styles.backBtnText}>←</Text>
           </Pressable>
 
@@ -213,7 +163,11 @@ export default function ParcelDetailsScreen() {
           <Image source={{ uri: parcel.photoUrl }} style={styles.heroImage} />
           <View style={styles.heroBody}>
             <View style={styles.badgeRow}>
-              {parcel.priority === 'Express' ? <Pill label="Express" tone="purple" /> : <Pill label="Normal" tone="gray" />}
+              {parcel.priority === "Express" ? (
+                <Pill label="Express" tone="purple" />
+              ) : (
+                <Pill label="Normal" tone="gray" />
+              )}
               <View style={styles.heroMeta}>
                 <Text style={styles.metaSmall}>ETA</Text>
                 <Text style={styles.metaBig}>{parcel.eta}</Text>
@@ -221,7 +175,9 @@ export default function ParcelDetailsScreen() {
             </View>
 
             <Text style={styles.recipient}>{parcel.recipientName}</Text>
-            <Text style={styles.address}>{clampText(parcel.addressLine)} • {parcel.city}</Text>
+            <Text style={styles.address}>
+              {clampText(parcel.addressLine)} • {parcel.city}
+            </Text>
 
             <View style={styles.rowInfo}>
               <InfoPill label={`📍 ${parcel.distanceKm.toFixed(1)} km`} />
@@ -233,14 +189,20 @@ export default function ParcelDetailsScreen() {
             <View style={styles.heroActions}>
               <Pressable
                 onPress={onIncident}
-                style={({ pressed }) => [styles.btnGhost, pressed && styles.btnPressed]}
+                style={({ pressed }) => [
+                  styles.btnGhost,
+                  pressed && styles.btnPressed,
+                ]}
               >
                 <Text style={styles.btnGhostText}>Incident</Text>
               </Pressable>
 
               <Pressable
                 onPress={onScan}
-                style={({ pressed }) => [styles.btnPrimary, pressed && styles.btnPressed]}
+                style={({ pressed }) => [
+                  styles.btnPrimary,
+                  pressed && styles.btnPressed,
+                ]}
               >
                 <Text style={styles.btnPrimaryText}>Scanner</Text>
               </Pressable>
@@ -252,8 +214,11 @@ export default function ParcelDetailsScreen() {
         <Section title="Destinataire">
           <View style={styles.card}>
             <Row label="Nom" value={parcel.recipientName} />
-            <Row label="Téléphone" value={parcel.phone ?? '—'} />
-            <Row label="Adresse" value={`${parcel.addressLine}, ${parcel.city}`} />
+            <Row label="Téléphone" value={parcel.phone ?? "—"} />
+            <Row
+              label="Adresse"
+              value={`${parcel.addressLine}, ${parcel.city}`}
+            />
           </View>
         </Section>
 
@@ -262,15 +227,21 @@ export default function ParcelDetailsScreen() {
           <View style={styles.card}>
             <View style={styles.proofHeader}>
               <Text style={styles.proofHint}>
-                {status === 'Livré'
-                  ? 'Preuve enregistrée'
-                  : status === 'Incident'
-                  ? 'Preuve liée à un incident'
-                  : 'Aucune preuve — valider via scan'}
+                {status === "Livré"
+                  ? "Preuve enregistrée"
+                  : status === "Incident"
+                    ? "Preuve liée à un incident"
+                    : "Aucune preuve — valider via scan"}
               </Text>
 
-              <Pressable onPress={onSimulateProof} style={({ pressed }) => [styles.smallBtn, pressed && styles.smallBtnPressed]}>
-                <Text style={styles.smallBtnText}>Simuler preuve</Text>
+              <Pressable
+                onPress={onCaptureProof}
+                style={({ pressed }) => [
+                  styles.smallBtn,
+                  pressed && styles.smallBtnPressed,
+                ]}
+              >
+                <Text style={styles.smallBtnText}>Capturer GPS</Text>
               </Pressable>
             </View>
 
@@ -280,16 +251,20 @@ export default function ParcelDetailsScreen() {
                 <Text style={styles.tileValue}>
                   {parcel.proof?.gps
                     ? `${parcel.proof.gps.lat.toFixed(4)}, ${parcel.proof.gps.lng.toFixed(4)}`
-                    : '—'}
+                    : "—"}
                 </Text>
                 <Text style={styles.tileSub}>
-                  {parcel.proof?.gps ? `Précision: ±${parcel.proof.gps.accuracyM}m` : 'Non capturé'}
+                  {parcel.proof?.gps
+                    ? `Précision: ±${parcel.proof.gps.accuracyM}m`
+                    : "Non capturé"}
                 </Text>
               </View>
 
               <View style={styles.proofTile}>
                 <Text style={styles.tileLabel}>🕒 Horodatage</Text>
-                <Text style={styles.tileValue}>{formatDateTime(parcel.proof?.timestamp)}</Text>
+                <Text style={styles.tileValue}>
+                  {formatDateTime(parcel.proof?.timestamp)}
+                </Text>
                 <Text style={styles.tileSub}>Dernière mise à jour</Text>
               </View>
             </View>
@@ -297,11 +272,18 @@ export default function ParcelDetailsScreen() {
             <View style={styles.proofPhotoWrap}>
               <Text style={styles.tileLabel}>📷 Photo</Text>
               {parcel.proof?.photoUrl ? (
-                <Image source={{ uri: parcel.proof.photoUrl }} style={styles.proofPhoto} />
+                <Image
+                  source={{ uri: parcel.proof.photoUrl }}
+                  style={styles.proofPhoto}
+                />
               ) : (
                 <View style={styles.proofPhotoEmpty}>
-                  <Text style={styles.proofEmptyText}>Aucune photo enregistrée</Text>
-                  <Text style={styles.proofEmptySub}>Après scan / incident, une photo peut être ajoutée.</Text>
+                  <Text style={styles.proofEmptyText}>
+                    Aucune photo enregistrée
+                  </Text>
+                  <Text style={styles.proofEmptySub}>
+                    Après scan / incident, une photo peut être ajoutée.
+                  </Text>
                 </View>
               )}
             </View>
@@ -315,19 +297,26 @@ export default function ParcelDetailsScreen() {
               emoji="🧭"
               title="Ouvrir carte"
               subtitle="Voir la destination"
-              onPress={() => router.push('/(tabs)/carte')}
+              onPress={() => router.push("../../../(tabs)/carte")}
             />
             <QuickAction
               emoji="📞"
               title="Appeler"
               subtitle="Contacter le client"
-              onPress={() => Alert.alert('Appel', 'Ici tu peux intégrer Linking.openURL("tel:...")')}
+              onPress={() =>
+                Alert.alert(
+                  "Appel",
+                  'Ici tu peux intégrer Linking.openURL("tel:...")',
+                )
+              }
             />
             <QuickAction
               emoji="🧾"
               title="Historique"
               subtitle="Événements du colis"
-              onPress={() => Alert.alert('Historique', 'Option bonus : timeline / logs')}
+              onPress={() =>
+                Alert.alert("Historique", "Option bonus : timeline / logs")
+              }
             />
           </View>
         </Section>
@@ -338,7 +327,13 @@ export default function ParcelDetailsScreen() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -366,8 +361,12 @@ function InfoPill({ label }: { label: string }) {
 
 function StatusChip({ status }: { status: ParcelStatus }) {
   const tone =
-    status === 'Livré' ? styles.chipGreen : status === 'Incident' ? styles.chipRed : styles.chipBlue;
-  const icon = status === 'Livré' ? '✅' : status === 'Incident' ? '⚠️' : '📦';
+    status === "Livré"
+      ? styles.chipGreen
+      : status === "Incident"
+        ? styles.chipRed
+        : styles.chipBlue;
+  const icon = status === "Livré" ? "✅" : status === "Incident" ? "⚠️" : "📦";
 
   return (
     <View style={[styles.chipBase, tone]}>
@@ -378,9 +377,14 @@ function StatusChip({ status }: { status: ParcelStatus }) {
   );
 }
 
-function Pill({ label, tone }: { label: string; tone: 'purple' | 'gray' }) {
+function Pill({ label, tone }: { label: string; tone: "purple" | "gray" }) {
   return (
-    <View style={[styles.pillBase, tone === 'purple' ? styles.pillPurple : styles.pillGray]}>
+    <View
+      style={[
+        styles.pillBase,
+        tone === "purple" ? styles.pillPurple : styles.pillGray,
+      ]}
+    >
       <Text style={styles.pillText}>{label}</Text>
     </View>
   );
@@ -398,7 +402,13 @@ function QuickAction({
   onPress: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.quickCard, pressed && styles.quickCardPressed]}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.quickCard,
+        pressed && styles.quickCardPressed,
+      ]}
+    >
       <Text style={styles.quickEmoji}>{emoji}</Text>
       <Text style={styles.quickTitle}>{title}</Text>
       <Text style={styles.quickSub}>{subtitle}</Text>
@@ -407,12 +417,12 @@ function QuickAction({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0B1220' },
+  screen: { flex: 1, backgroundColor: "#0B1220" },
   content: { padding: 16, paddingBottom: 28 },
 
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     marginBottom: 12,
   },
@@ -420,192 +430,245 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "rgba(255,255,255,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   backBtnText: {
-    color: 'rgba(255,255,255,0.9)',
+    color: "rgba(255,255,255,0.9)",
     fontSize: 18,
-    fontWeight: '900',
+    fontWeight: "900",
     marginTop: -1,
   },
   topBarTitleWrap: { flex: 1 },
   kicker: {
-    color: 'rgba(255,255,255,0.65)',
+    color: "rgba(255,255,255,0.65)",
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 0.4,
   },
-  title: { color: 'white', fontSize: 22, fontWeight: '900', marginTop: 3 },
-  topRight: { alignItems: 'flex-end' },
+  title: { color: "white", fontSize: 22, fontWeight: "900", marginTop: 3 },
+  topRight: { alignItems: "flex-end" },
 
   heroCard: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: "rgba(255,255,255,0.10)",
     borderRadius: 22,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   heroImage: {
-    width: '100%',
+    width: "100%",
     height: 170,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
   heroBody: { padding: 12 },
 
   badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 8,
     gap: 10,
   },
-  heroMeta: { alignItems: 'flex-end' },
+  heroMeta: { alignItems: "flex-end" },
   metaSmall: {
-    color: 'rgba(255,255,255,0.6)',
+    color: "rgba(255,255,255,0.6)",
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: "800",
   },
-  metaBig: { color: 'white', fontSize: 16, fontWeight: '900', marginTop: 2 },
+  metaBig: { color: "white", fontSize: 16, fontWeight: "900", marginTop: 2 },
 
-  recipient: { color: 'white', fontSize: 18, fontWeight: '900', marginTop: 2 },
+  recipient: { color: "white", fontSize: 18, fontWeight: "900", marginTop: 2 },
   address: {
-    color: 'rgba(255,255,255,0.78)',
+    color: "rgba(255,255,255,0.78)",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     marginTop: 6,
     lineHeight: 16,
   },
-  rowInfo: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', marginTop: 12 },
+  rowInfo: { flexDirection: "row", gap: 10, flexWrap: "wrap", marginTop: 12 },
   note: {
     marginTop: 10,
-    color: 'rgba(255,255,255,0.85)',
+    color: "rgba(255,255,255,0.85)",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 16,
   },
 
-  heroActions: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  heroActions: { flexDirection: "row", gap: 10, marginTop: 12 },
   btnGhost: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
-    alignItems: 'center',
+    borderColor: "rgba(255,255,255,0.10)",
+    alignItems: "center",
   },
-  btnGhostText: { color: 'rgba(255,255,255,0.92)', fontSize: 13, fontWeight: '900' },
+  btnGhostText: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 13,
+    fontWeight: "900",
+  },
   btnPrimary: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 16,
-    backgroundColor: '#4F8CFF',
-    alignItems: 'center',
+    backgroundColor: "#4F8CFF",
+    alignItems: "center",
   },
-  btnPrimaryText: { color: 'white', fontSize: 13, fontWeight: '900' },
+  btnPrimaryText: { color: "white", fontSize: 13, fontWeight: "900" },
   btnPressed: { opacity: 0.9, transform: [{ scale: 0.99 }] },
 
   section: { marginTop: 18 },
   sectionTitle: {
-    color: 'rgba(255,255,255,0.75)',
+    color: "rgba(255,255,255,0.75)",
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: "900",
     letterSpacing: 0.6,
     marginBottom: 10,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
 
   card: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: "rgba(255,255,255,0.10)",
     borderRadius: 20,
     padding: 12,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 12,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.06)',
+    borderBottomColor: "rgba(255,255,255,0.06)",
   },
-  rowLabel: { color: 'rgba(255,255,255,0.60)', fontSize: 12, fontWeight: '800' },
-  rowValue: { color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: '800', flex: 1, textAlign: 'right' },
+  rowLabel: {
+    color: "rgba(255,255,255,0.60)",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  rowValue: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 12,
+    fontWeight: "800",
+    flex: 1,
+    textAlign: "right",
+  },
 
   proofHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     gap: 12,
     marginBottom: 12,
   },
   proofHint: {
-    color: 'rgba(255,255,255,0.75)',
+    color: "rgba(255,255,255,0.75)",
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: "800",
     flex: 1,
   },
   smallBtn: {
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: "rgba(255,255,255,0.10)",
   },
   smallBtnPressed: { opacity: 0.9, transform: [{ scale: 0.98 }] },
-  smallBtnText: { color: 'rgba(255,255,255,0.90)', fontSize: 12, fontWeight: '900' },
+  smallBtnText: {
+    color: "rgba(255,255,255,0.90)",
+    fontSize: 12,
+    fontWeight: "900",
+  },
 
   proofGrid: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   proofTile: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: "rgba(255,255,255,0.05)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: "rgba(255,255,255,0.08)",
     borderRadius: 18,
     padding: 12,
   },
-  tileLabel: { color: 'rgba(255,255,255,0.65)', fontSize: 12, fontWeight: '900' },
-  tileValue: { color: 'white', fontSize: 13, fontWeight: '900', marginTop: 8 },
-  tileSub: { color: 'rgba(255,255,255,0.60)', fontSize: 11, fontWeight: '800', marginTop: 6 },
+  tileLabel: {
+    color: "rgba(255,255,255,0.65)",
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  tileValue: { color: "white", fontSize: 13, fontWeight: "900", marginTop: 8 },
+  tileSub: {
+    color: "rgba(255,255,255,0.60)",
+    fontSize: 11,
+    fontWeight: "800",
+    marginTop: 6,
+  },
 
   proofPhotoWrap: { marginTop: 12 },
-  proofPhoto: { width: '100%', height: 190, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.08)', marginTop: 10 },
+  proofPhoto: {
+    width: "100%",
+    height: 190,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    marginTop: 10,
+  },
   proofPhotoEmpty: {
     marginTop: 10,
     height: 190,
     borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: "rgba(255,255,255,0.04)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 18,
   },
-  proofEmptyText: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: '900' },
-  proofEmptySub: { color: 'rgba(255,255,255,0.60)', fontSize: 12, fontWeight: '800', marginTop: 6, textAlign: 'center' },
+  proofEmptyText: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  proofEmptySub: {
+    color: "rgba(255,255,255,0.60)",
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: 6,
+    textAlign: "center",
+  },
 
-  quickGrid: { flexDirection: 'row', gap: 12 },
+  quickGrid: { flexDirection: "row", gap: 12 },
   quickCard: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: "rgba(255,255,255,0.10)",
     borderRadius: 20,
     padding: 12,
   },
   quickCardPressed: { opacity: 0.9, transform: [{ scale: 0.99 }] },
   quickEmoji: { fontSize: 18 },
-  quickTitle: { color: 'white', fontSize: 13, fontWeight: '900', marginTop: 10 },
-  quickSub: { color: 'rgba(255,255,255,0.65)', fontSize: 11, fontWeight: '800', marginTop: 4 },
+  quickTitle: {
+    color: "white",
+    fontSize: 13,
+    fontWeight: "900",
+    marginTop: 10,
+  },
+  quickSub: {
+    color: "rgba(255,255,255,0.65)",
+    fontSize: 11,
+    fontWeight: "800",
+    marginTop: 4,
+  },
 
   chipBase: {
     paddingHorizontal: 10,
@@ -613,33 +676,62 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
   },
-  chipText: { color: 'white', fontSize: 11, fontWeight: '900' },
-  chipGreen: { backgroundColor: 'rgba(34,197,94,0.18)', borderColor: 'rgba(34,197,94,0.40)' },
-  chipRed: { backgroundColor: 'rgba(239,68,68,0.18)', borderColor: 'rgba(239,68,68,0.40)' },
-  chipBlue: { backgroundColor: 'rgba(79,140,255,0.18)', borderColor: 'rgba(79,140,255,0.40)' },
+  chipText: { color: "white", fontSize: 11, fontWeight: "900" },
+  chipGreen: {
+    backgroundColor: "rgba(34,197,94,0.18)",
+    borderColor: "rgba(34,197,94,0.40)",
+  },
+  chipRed: {
+    backgroundColor: "rgba(239,68,68,0.18)",
+    borderColor: "rgba(239,68,68,0.40)",
+  },
+  chipBlue: {
+    backgroundColor: "rgba(79,140,255,0.18)",
+    borderColor: "rgba(79,140,255,0.40)",
+  },
 
-  pillBase: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, borderWidth: 1 },
-  pillText: { color: 'white', fontSize: 11, fontWeight: '900' },
-  pillPurple: { backgroundColor: 'rgba(168,85,247,0.18)', borderColor: 'rgba(168,85,247,0.40)' },
-  pillGray: { backgroundColor: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.10)' },
+  pillBase: {
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  pillText: { color: "white", fontSize: 11, fontWeight: "900" },
+  pillPurple: {
+    backgroundColor: "rgba(168,85,247,0.18)",
+    borderColor: "rgba(168,85,247,0.40)",
+  },
+  pillGray: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.10)",
+  },
 
   infoPill: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: "rgba(255,255,255,0.10)",
     paddingHorizontal: 10,
     paddingVertical: 9,
     borderRadius: 999,
   },
-  infoPillText: { color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '800' },
-
-  errorWrap: { flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center' },
-  errorTitle: { color: 'white', fontSize: 20, fontWeight: '900' },
-  errorText: {
-    color: 'rgba(255,255,255,0.75)',
+  infoPillText: {
+    color: "rgba(255,255,255,0.85)",
     fontSize: 12,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: "800",
+  },
+
+  errorWrap: {
+    flex: 1,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  errorTitle: { color: "white", fontSize: 20, fontWeight: "900" },
+  errorText: {
+    color: "rgba(255,255,255,0.75)",
+    fontSize: 12,
+    fontWeight: "700",
+    textAlign: "center",
     marginTop: 10,
     marginBottom: 14,
     lineHeight: 16,

@@ -3,6 +3,7 @@ export type ParcelStatus = "À livrer" | "Livré" | "Incident";
 export type ParcelProof = {
   gps?: { lat: number; lng: number; accuracyM: number };
   photoUrl?: string;
+  signatureDataUrl?: string;
   timestamp?: string;
 };
 

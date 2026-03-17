@@ -1,3 +1,4 @@
+import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -13,7 +14,9 @@ import {
   View,
 } from "react-native";
 
+import { useAuth } from "@/hooks/use-auth";
 import { useParcels } from "@/hooks/use-parcels";
+import { generateAndShareDeliveryReceipt } from "@/services";
 import type { ParcelStatus } from "@/types/parcel";
 
 function formatDateTime(iso?: string) {
@@ -32,6 +35,7 @@ export default function ParcelDetailsScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = typeof params.id === "string" ? params.id : undefined;
 
+  const { user } = useAuth();
   const { getById, isLoading, setStatusWithProof } = useParcels();
   const parcel = id ? getById(id) : undefined;
 
@@ -81,10 +85,25 @@ export default function ParcelDetailsScreen() {
     router.push(`/parcel/${parcel.id}/incident`);
   };
 
+  const onSignature = () => {
+    router.push(`/parcel/${parcel.id}/signature` as never);
+  };
+
+  const onGenerateReceipt = async () => {
+    try {
+      await generateAndShareDeliveryReceipt(parcel, user?.nom ?? "Livreur");
+    } catch {
+      Alert.alert(
+        "PDF indisponible",
+        "Impossible de générer le bon de livraison pour le moment.",
+      );
+    }
+  };
+
   const onCaptureProof = () => {
     Alert.alert(
       "Validation livraison",
-      "Capturer la position GPS et marquer ce colis comme livré ?",
+      "Capturer GPS + photo de preuve puis marquer ce colis comme livré ?",
       [
         { text: "Annuler", style: "cancel" },
         {
@@ -105,6 +124,30 @@ export default function ParcelDetailsScreen() {
                 accuracy: Location.Accuracy.Balanced,
               });
 
+              const cameraPermission =
+                await ImagePicker.requestCameraPermissionsAsync();
+              if (cameraPermission.status !== "granted") {
+                Alert.alert(
+                  "Permission caméra refusée",
+                  "La photo est obligatoire pour certifier la livraison.",
+                );
+                return;
+              }
+
+              const photoResult = await ImagePicker.launchCameraAsync({
+                mediaTypes: ["images"],
+                quality: 0.65,
+                allowsEditing: false,
+              });
+
+              if (photoResult.canceled || !photoResult.assets[0]?.uri) {
+                Alert.alert(
+                  "Preuve incomplète",
+                  "La livraison n’a pas été validée car aucune photo n’a été prise.",
+                );
+                return;
+              }
+
               await setStatusWithProof(parcel.id, "Livré", {
                 gps: {
                   lat: currentLocation.coords.latitude,
@@ -115,12 +158,13 @@ export default function ParcelDetailsScreen() {
                   ),
                 },
                 timestamp: new Date().toISOString(),
-                photoUrl: parcel.proof?.photoUrl,
+                photoUrl: photoResult.assets[0].uri,
+                signatureDataUrl: parcel.proof?.signatureDataUrl,
               });
             } catch {
               Alert.alert(
-                "GPS indisponible",
-                "Impossible de capturer la position actuelle.",
+                "Validation impossible",
+                "Impossible de capturer la preuve de livraison complète.",
               );
             }
           },
@@ -198,6 +242,16 @@ export default function ParcelDetailsScreen() {
               </Pressable>
 
               <Pressable
+                onPress={onSignature}
+                style={({ pressed }) => [
+                  styles.btnGhost,
+                  pressed && styles.btnPressed,
+                ]}
+              >
+                <Text style={styles.btnGhostText}>Signature</Text>
+              </Pressable>
+
+              <Pressable
                 onPress={onScan}
                 style={({ pressed }) => [
                   styles.btnPrimary,
@@ -207,6 +261,17 @@ export default function ParcelDetailsScreen() {
                 <Text style={styles.btnPrimaryText}>Scanner</Text>
               </Pressable>
             </View>
+
+            <Pressable
+              onPress={onGenerateReceipt}
+              style={({ pressed }) => [
+                styles.btnPrimary,
+                { marginTop: 8 },
+                pressed && styles.btnPressed,
+              ]}
+            >
+              <Text style={styles.btnPrimaryText}>Générer PDF</Text>
+            </Pressable>
           </View>
         </View>
 
@@ -241,7 +306,7 @@ export default function ParcelDetailsScreen() {
                   pressed && styles.smallBtnPressed,
                 ]}
               >
-                <Text style={styles.smallBtnText}>Capturer GPS</Text>
+                <Text style={styles.smallBtnText}>Capturer preuve</Text>
               </Pressable>
             </View>
 
@@ -283,6 +348,23 @@ export default function ParcelDetailsScreen() {
                   </Text>
                   <Text style={styles.proofEmptySub}>
                     Après scan / incident, une photo peut être ajoutée.
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.proofPhotoWrap}>
+              <Text style={styles.tileLabel}>✍️ Signature</Text>
+              {parcel.proof?.signatureDataUrl ? (
+                <Image
+                  source={{ uri: parcel.proof.signatureDataUrl }}
+                  style={styles.proofPhoto}
+                />
+              ) : (
+                <View style={styles.proofPhotoEmpty}>
+                  <Text style={styles.proofEmptyText}>Signature manquante</Text>
+                  <Text style={styles.proofEmptySub}>
+                    Capture la signature avant de générer le PDF.
                   </Text>
                 </View>
               )}

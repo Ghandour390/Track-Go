@@ -48,9 +48,13 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Track&Go a besoin de votre position pour certifier le lieu de livraison."
+          "locationAlwaysAndWhenInUsePermission": "Track&Go a besoin de votre position pour certifier le lieu de livraison.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
         }
       ],
+      "expo-secure-store",
       "expo-sqlite"
     ],
     "experiments": {

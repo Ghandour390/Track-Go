@@ -1,50 +1,117 @@
-# Welcome to your Expo app 👋
+# Track&Go
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile React Native (Expo) pour la gestion du dernier kilomètre:
 
-## Get started
+- authentification livreur,
+- gestion de tournée,
+- scan colis,
+- preuve de livraison (GPS + photo),
+- incidents avec photo/commentaire,
+- carte interactive des destinations,
+- persistance locale + synchronisation différée.
+- verrouillage biométrique + PIN de secours.
+- génération de bon de livraison PDF partageable.
 
-1. Install dependencies
+## Stack technique
 
-   ```bash
-   npm install
-   ```
+- Expo Router (navigation file-based)
+- TypeScript strict
+- `expo-camera`, `expo-location`, `expo-task-manager`, `expo-image-picker`
+- `expo-local-authentication`, `expo-secure-store`
+- `expo-print`, `expo-sharing`, `react-native-signature-canvas`
+- `react-native-maps`
+- `@react-native-community/netinfo`
+- AsyncStorage (cache local + file de synchronisation)
+- JSON-Server mock API via Docker
 
-2. Start the app
+## Prérequis
 
-   ```bash
-   npx expo start
-   ```
+- Node.js 18+
+- npm
+- Expo CLI (via `npx expo`)
+- Docker + Docker Compose (pour l’API mock)
 
-In the output, you'll find options to open the app in a
+## Lancement rapide
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Installer les dépendances:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Configurer l’URL API dans `.env`:
 
-## Learn more
+```env
+EXPO_PUBLIC_API_URL=http://<IP-OU-HOST>:3009
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Démarrer l’API mock:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+cd mock-server
+docker compose up --build
+```
 
-## Join the community
+4. Démarrer l’app Expo (depuis la racine):
 
-Join our community of developers creating universal apps.
+```bash
+npx expo start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## CI
+
+La CI GitHub Actions déclenchée sur Pull Request exécute:
+
+- Type-check (`tsc --noEmit`)
+- Lint (`eslint`)
+
+Fichier: `.github/workflows/ci.yml`
+
+## Fonctionnalités principales
+
+- **US1 Auth & Session**: login, restauration session, logout
+- **US2 Dashboard/Tournée**: stats de progression, liste optimisée FlatList
+- **US3 Scan intelligent**: scan 1D/2D + torche + saisie manuelle
+- **US4 Preuve de livraison**: capture GPS + photo au moment de la validation
+- **US5 Incident**: type, commentaire, photo, géolocalisation
+- **US6 Sync Offline**: queue persistante ordonnée (`id/actionType/status`) + retry auto au retour réseau
+- **US7 Biométrie/PIN**: verrouillage auto au background + déverrouillage FaceID/TouchID + fallback PIN
+- **US8 PDF**: signature client + photo de preuve injectées dans un bon PDF partageable
+
+## Architecture données
+
+- Source distante: JSON-Server (`mock-server/db.json`)
+- État applicatif: `hooks/use-parcels.ts`
+- Statut réseau: `hooks/use-online-status.ts`
+- Persistance locale: `storage/parcelsStorage.ts`
+- File de synchro offline: `storage/syncQueueStorage.ts`
+- Sécurité session/PIN: `storage/authStorage.ts` (SecureStore)
+
+Flux:
+
+1. Chargement API au démarrage (fallback local en cas d’erreur)
+2. Mise à jour locale immédiate
+3. Synchronisation API immédiate ou en file d’attente
+
+## Flux signature / PDF
+
+1. Ouvrir le détail colis
+2. Capturer la signature client
+3. Valider la livraison (GPS + photo)
+4. Générer / partager le PDF du bon de livraison
+
+## Scripts utiles
+
+```bash
+npm run lint
+npx tsc --noEmit
+npm run qa:verify
+npm run android
+npm run ios
+npm run web
+```
+
+## Recette finale terrain
+
+- Checklist complète: `QA_CHECKLIST.md`
+- Vérification automatique locale: `npm run qa:verify`

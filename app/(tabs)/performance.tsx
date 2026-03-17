@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useParcels } from "@/hooks/use-parcels";
 
 export default function PerformanceScreen() {
-  const { parcels, pendingSyncCount, isSyncing } = useParcels();
+  const { parcels, pendingSyncCount, isSyncing, isOnline } = useParcels();
 
   const stats = useMemo(() => {
     const total = parcels.length;
@@ -36,6 +36,10 @@ export default function PerformanceScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Performance tournée</Text>
+      <Text style={styles.syncBadge}>
+        ☁️ {isOnline ? "En ligne" : "Hors ligne"} • {pendingSyncCount} en
+        attente
+      </Text>
 
       <View style={styles.grid}>
         <StatCard label="Progression" value={`${stats.progress}%`} />
@@ -81,6 +85,12 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: "white",
     marginBottom: 12,
+  },
+  syncBadge: {
+    marginBottom: 10,
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 12,
+    fontWeight: "800",
   },
   grid: {
     flexDirection: "row",

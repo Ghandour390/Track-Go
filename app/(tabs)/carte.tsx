@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 import { useParcels } from "@/hooks/use-parcels";
+import { getLastTrackedLocation } from "@/services/locationTrackingService";
 
 export default function CarteScreen() {
   const { parcels } = useParcels();
@@ -15,6 +16,14 @@ export default function CarteScreen() {
 
   useEffect(() => {
     async function loadLocation() {
+      const lastTracked = await getLastTrackedLocation();
+      if (lastTracked) {
+        setDriverLocation({
+          latitude: lastTracked.latitude,
+          longitude: lastTracked.longitude,
+        });
+      }
+
       const permission = await Location.requestForegroundPermissionsAsync();
       if (permission.status !== "granted") {
         setIsLocating(false);

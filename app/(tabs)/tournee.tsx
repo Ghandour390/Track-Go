@@ -29,7 +29,7 @@ function clampText(s: string, max = 44) {
 }
 
 export default function TourneeScreen() {
-  const { parcels, refresh } = useParcels();
+  const { parcels, refresh, isOnline, pendingSyncCount } = useParcels();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("Tous");
   const [refreshing, setRefreshing] = useState(false);
@@ -186,6 +186,10 @@ export default function TourneeScreen() {
           <View>
             <Text style={styles.headerKicker}>Track&Go</Text>
             <Text style={styles.headerTitle}>Ma tournée</Text>
+            <Text style={styles.headerSync}>
+              ☁️ {isOnline ? "En ligne" : "Hors ligne"} • {pendingSyncCount} en
+              attente
+            </Text>
           </View>
           <Pressable
             onPress={() => router.push("../../../(tabs)/carte")}
@@ -339,6 +343,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "800",
     marginTop: 4,
+  },
+  headerSync: {
+    marginTop: 6,
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 11,
+    fontWeight: "800",
   },
   headerBtn: {
     backgroundColor: "rgba(255,255,255,0.10)",
